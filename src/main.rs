@@ -6,11 +6,14 @@ mod routes;
 mod schema;
 mod solana;
 
-use rocket::{get, routes};
-
+use rocket::routes;
 use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
+
+use crate::solana::{get_accounts_and_update, subscribe_to_program};
+use crate::routes::{get_all_stream, index};
+
 
 // Load .env and connect to sqlclient db via url.
 pub fn establish_connection() -> PgConnection {

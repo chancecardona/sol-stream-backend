@@ -16,11 +16,24 @@ pub fn get_all_program_accounts() -> Vec<(Pubkey, Account)> {
         .expect("Something went wrong")
 }
 
+pub fn get_accounts_and_update() {
+    let program_accounts = get_all_program_accounts();
+    let conn = establish_connection();
+    for item in program_accounts.iter() {
+        let stream = Stream::new(item.0.to_string(), &item.1.data);
+        match stream {
+            Some(a) => Stream::insert_or_update(a, &conn),
+            _ => continue,
+        };
+    }
+}
+
 pub fn subscribe_to_program() {
     let url = "ws://api.devnet.solana.com".to_string();
     let program_pub_key = Pubkey::from_str("DcGPfiGbubEKh1EnQ86EdMvitjhrUo8fGSgvqtFG4A9t")
         .expect("program address invalid");
-
+    
+    // program_subscribe takes in Solana RPC url, the program pub key, and Config (none)
     thread::spawn(move || loop {
         let subscription =
             pubsub_client::PubsubClient::program_subscribe(&url, &program_pub_key, None)
@@ -33,8 +46,8 @@ pub fn subscribe_to_program() {
                 Ok(response) => {
                     let pda_pubkey = response.value.pubkey;
                     let pda_account: Account = response.value.account.decode().unwrap();
-
                     let stream = Stream::new(pda_pubkey, &pda_account.data);
+
                     match stream {
                         Some(a) => Stream::insert_or_update(a, &conn),
                         _ => {
@@ -52,14 +65,3 @@ pub fn subscribe_to_program() {
     });
 }
 
-pub fn get_accounts_and_update() {
-    let program_accounts = get_all_program_accounts();
-    let conn = establish_connection();
-    for item in program_accounts.iter() {
-        let stream = Stream::new(item.0.to_string(), &item.1.data);
-        match stream {
-            Some(a) => Stream::insert_or_update(a, &conn),
-            _ => continue,
-        };
-    }
-}
