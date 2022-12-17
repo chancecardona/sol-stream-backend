@@ -2,10 +2,10 @@
 extern crate diesel;
 
 mod models;
-mod models::Stream;
-mod routes::{get_all_stream, index};
+mod routes;
 mod schema;
-mod solana::{get_all_program_accounts, subscribe_to_program};
+mod solana;
+
 use rocket::{get, routes};
 
 use diesel::prelude::*;
