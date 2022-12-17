@@ -22,23 +22,16 @@ pub fn establish_connection() -> PgConnection {
 
 #[rocket::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    get_accounts_and_update();
+    subscribe_to_program();
+
     let cors = rocket_cors::CorsOptions::default().to_cors()?;
 
     rocket::build()
-        .mount("/", routes![index,route_with_pubkey])
+        .mount("/", routes![index, get_all_stream])
         .attach(cors)
         .launch()
         .await?;
 
     Ok(())
-}
-
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
-}
-
-#[get("/<pubkey>")]
-fn route_with_pubkey(pubkey: &str)-> String{
-    format!("Hello {}",pubkey)
 }
