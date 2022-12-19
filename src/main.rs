@@ -28,7 +28,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     get_accounts_and_update();
     subscribe_to_program();
 
-    let cors = rocket_cors::CorsOptions::default().to_cors()?;
+    let cors_options = rocket_cors::CorsOptions::default();
+    // Default to sending the wildcard CORs header (not default)
+    let cors = cors_options.send_wildcard(true).to_cors()?;
 
     rocket::build()
         .mount("/", routes![index, get_all_stream])

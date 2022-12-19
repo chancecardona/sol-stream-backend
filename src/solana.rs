@@ -6,20 +6,24 @@ use solana_sdk::{account::Account, pubkey::Pubkey};
 use crate::{establish_connection, models::Stream};
 
 pub fn get_all_program_accounts() -> Vec<(Pubkey, Account)> {
-    let program_pub_key = Pubkey::from_str("DcGPfiGbubEKh1EnQ86EdMvitjhrUo8fGSgvqtFG4A9t")
+    let program_pub_key = Pubkey::from_str("3MWn8G9eHvHXRpdb9fBduDpD5XD4SLbgxkbBwe2s9G8Q")
         .expect("program address invalid");
     let url = "https://api.devnet.solana.com".to_string();
     let client = RpcClient::new(url);
 
+    // get_program_accounts returns all accts owned by program pubkey.
     client
         .get_program_accounts(&program_pub_key)
         .expect("Something went wrong")
 }
 
 pub fn get_accounts_and_update() {
+    println!("get_accounts_and_update called.");
     let program_accounts = get_all_program_accounts();
     let conn = establish_connection();
+    println!("program_accounts len: {}", program_accounts.len());
     for item in program_accounts.iter() {
+        //println!("Program accounts pubkey: {}, account: {:?}", item.0.to_string(), &item.1.data);
         let stream = Stream::new(item.0.to_string(), &item.1.data);
         match stream {
             Some(a) => Stream::insert_or_update(a, &conn),
@@ -29,8 +33,8 @@ pub fn get_accounts_and_update() {
 }
 
 pub fn subscribe_to_program() {
-    let url = "ws://api.devnet.solana.com".to_string();
-    let program_pub_key = Pubkey::from_str("DcGPfiGbubEKh1EnQ86EdMvitjhrUo8fGSgvqtFG4A9t")
+    let url = "wss://api.devnet.solana.com/".to_string();
+    let program_pub_key = Pubkey::from_str("3MWn8G9eHvHXRpdb9fBduDpD5XD4SLbgxkbBwe2s9G8Q")
         .expect("program address invalid");
     
     // program_subscribe takes in Solana RPC url, the program pub key, and Config (none)
@@ -51,7 +55,7 @@ pub fn subscribe_to_program() {
                     match stream {
                         Some(a) => Stream::insert_or_update(a, &conn),
                         _ => {
-                            println!("data didn't parsed");
+                            println!("data couldn't be parsed");
                             continue;
                         }
                     };

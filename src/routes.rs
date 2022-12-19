@@ -17,9 +17,10 @@ pub fn get_all_stream(pubkey: &str) -> Json<Value> {
     let conn = establish_connection();
     Json(
         json!({
-            "status":"success",
-            "sending":Stream::get_all_with_sender(&pubkey_string, &conn),
-            "receiving":Stream::get_all_with_receiver(&pubkey_string, &conn)
+            "status": "success",
+            "sending": Stream::get_all_with_sender(&pubkey_string, &conn),
+            "receiving": Stream::get_all_with_receiver(&pubkey_string, &conn),
+            "PDA": Stream::get_all_with_pda(&pubkey_string, &conn),
         }),
     )
 }
